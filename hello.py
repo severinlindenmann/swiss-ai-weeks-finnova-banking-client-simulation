@@ -1,6 +1,9 @@
 import os
 import openai
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
 
 client = openai.OpenAI(
     api_key=os.getenv("SWISS_AI_PLATFORM_API_KEY"),
