@@ -2,7 +2,7 @@ import pandas as pd
 from pathlib import Path
 
 def load_demographie_csv():
-  csv_path = Path(__file__).parent / "../../data/Demographie/datax.csv"
+  csv_path = Path(__file__).parent / "../data/Demographie/datax.csv"
   df = pd.read_csv(csv_path)
   return df
 
