@@ -1,14 +1,10 @@
 [project]
-name = "swiss-ai-weeks-finnova-banking-client-simulation"
+name = "persona-generator"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "numpy>=2.2.6",
-    "openai>=1.109.1",
     "pandas>=2.3.2",
-    "plotly>=6.3.0",
-    "python-dotenv>=1.1.1",
     "streamlit>=1.50.0",
 ]
