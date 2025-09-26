@@ -6,6 +6,7 @@ import time
 import asyncio
 from datetime import datetime
 from single_persona import generate_persona, get_filter_options
+from ui_components import load_custom_css, create_header, create_section_header, create_info_box, create_metric_card
 import uuid
 import concurrent.futures
 from threading import Semaphore
@@ -242,8 +243,14 @@ def generate_batch_personas_sequential(count, additional_params, csv_filters, pr
 def show():
     """Show the batch persona generation page"""
     
-    st.title("🎯 Batch Persona Generator")
-    st.write("Generate multiple banking personas at once with consistent filters and parameters.")
+    # Load custom CSS
+    load_custom_css()
+    
+    create_header(
+        "Batch Persona Generator", 
+        "Generiere mehrere Banking-Personas gleichzeitig mit konsistenten Filtern und Parametern",
+        "🎯"
+    )
     
     # Initialize session state
     if 'batch_generated' not in st.session_state:
@@ -259,21 +266,28 @@ def show():
     col1, col2 = st.columns([1, 2])
 
     with col1:
-        st.write("### Batch Configuration")
+        create_section_header("Batch Konfiguration", "⚙️")
         
         # Batch size
         batch_size = st.slider(
-            "Number of Personas",
+            "📊 Anzahl Personas",
             min_value=1,
             max_value=100,
             value=10,
-            help="How many personas to generate in this batch"
+            help="Wie viele Personas in diesem Batch generiert werden sollen"
         )
         
-        st.write("### CSV-Daten Filter")
+        st.markdown(f"""
+        <div class="metric-container">
+            <h4>📈 Geschätzte Zeit</h4>
+            <p>{batch_size * 15}-{batch_size * 30} Sekunden</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        create_section_header("CSV-Daten Filter", "🔍")
         
         # Demographics filters from CSV (same as single persona)
-        st.write("**Demografische Filter:**")
+        st.markdown("**👥 Demografische Filter:**")
         
         alter_range = st.selectbox(
             "Altersgruppe",
@@ -351,12 +365,12 @@ def show():
             'kinder': 1 if kinder_filter == "Mit Kindern" else (0 if kinder_filter == "Ohne Kinder" else None)
         }
         
-        st.write("---")
+        st.markdown("---")
         
-        st.write("### Banking Parameter")
+        create_section_header("Banking Parameter", "💰")
         
         # Banking parameters with randomization option
-        st.write("**Parameter-Modus:**")
+        st.markdown("**🔧 Parameter-Modus:**")
         param_mode = st.radio(
             "Wie sollen Banking-Parameter gesetzt werden?",
             ["Fest (alle Personas gleich)", "Zufällig variieren"],
@@ -415,18 +429,21 @@ def show():
                 'randomize': True
             }
         
-        st.write("---")
+        st.markdown("---")
         
         # Generation button
-        st.write("### Generation")
+        create_section_header("Generierung", "🚀")
         
         # Show processing mode info
-        processing_mode = "Parallel (5 requests/sec)" if batch_size >= 5 else "Sequential"
+        processing_mode = "Parallel (5 Anfragen/Sek)" if batch_size >= 5 else "Sequenziell"
         estimated_time = batch_size / 5 if batch_size >= 5 else batch_size * 2  # rough estimates
         
-        st.info(f"**Processing Mode**: {processing_mode} | **Estimated Time**: ~{estimated_time:.1f} seconds")
+        create_info_box(f"""
+        <strong>🔄 Verarbeitungsmodus:</strong> {processing_mode}<br>
+        <strong>⏱️ Geschätzte Zeit:</strong> ~{estimated_time:.1f} Sekunden
+        """)
         
-        if st.button("🚀 Generate Batch", type="primary", use_container_width=True):
+        if st.button("🚀 Batch Generieren", type="primary", use_container_width=True):
             if batch_size > 0:
                 # Show progress with enhanced tracking
                 progress_bar = st.progress(0)

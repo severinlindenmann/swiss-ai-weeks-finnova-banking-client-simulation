@@ -3,6 +3,7 @@ import pandas as pd
 from pathlib import Path
 from data import load_demographie_csv
 from llm import SwissAIClient
+from ui_components import load_custom_css, create_header, create_section_header, create_info_box, create_persona_card
 import random
 import json
 
@@ -225,6 +226,9 @@ def get_filter_options():
 def show():
     """Show the single persona generation page"""
     
+    # Load custom CSS
+    load_custom_css()
+    
     # Initialize session state
     if 'persona_generated' not in st.session_state:
         st.session_state.persona_generated = False
@@ -233,8 +237,11 @@ def show():
     if 'current_person_data' not in st.session_state:
         st.session_state.current_person_data = {}
 
-    st.title("👤 Single Persona Generator")
-    st.write("Generate one realistic banking persona based on Swiss demographic data with customizable filters.")
+    create_header(
+        "Single Persona Generator", 
+        "Generiere eine realistische Banking-Persona basierend auf Schweizer demographischen Daten",
+        "👤"
+    )
 
     filter_options = get_filter_options()
 
@@ -245,10 +252,10 @@ def show():
         # Debug mode toggle
         debug_mode = st.checkbox("🐛 Debug Mode", help="Shows detailed LLM responses for troubleshooting")
         
-        st.write("### CSV-Daten Filter")
+        create_section_header("CSV-Daten Filter", "🔍")
         
         # Demographics filters from CSV
-        st.write("**Demografische Filter:**")
+        st.markdown("**👥 Demografische Filter:**")
         
         alter_range = st.selectbox(
             "Altersgruppe",
@@ -318,12 +325,12 @@ def show():
             'kinder': 1 if kinder_filter == "Mit Kindern" else (0 if kinder_filter == "Ohne Kinder" else None)
         }
         
-        st.write("---")
+        st.markdown("---")
         
-        st.write("### Banking Parameter")
+        create_section_header("Banking Parameter", "💰")
         
         # Additional parameters not in CSV data
-        st.write("**Banking-spezifische Parameter:**")
+        st.markdown("**🏦 Banking-spezifische Parameter:**")
         
         vermoegen = st.selectbox(
             "Freies Vermögen",
@@ -369,10 +376,10 @@ def show():
             'finanz_erfahrung': finanz_erfahrung
         }
         
-        st.write("---")
+        st.markdown("---")
         
-        st.write("### Actions")
-        if st.button("🎯 Generate Persona", type="primary", use_container_width=True):
+        create_section_header("Aktionen", "⚡")
+        if st.button("🎯 Persona Generieren", type="primary", use_container_width=True):
             persona, person_data = generate_persona(additional_params, csv_filters, debug_mode)
             if persona and person_data:
                 st.session_state.current_persona = persona
@@ -380,7 +387,7 @@ def show():
                 st.session_state.persona_generated = True
 
         if st.session_state.persona_generated:
-            st.write("### Source Data")
+            create_section_header("Quell-Daten", "📊")
             st.write("**Selected Person Data:**")
             
             # Display some key demographics in a nice format

@@ -5,6 +5,7 @@ from pathlib import Path
 from datetime import datetime
 import plotly.express as px
 import plotly.graph_objects as go
+from ui_components import load_custom_css, create_header, create_section_header, create_info_box, create_persona_card, create_metric_card
 
 def load_saved_batches():
     """Load all saved persona batches from the generated_personas directory"""
@@ -145,18 +146,27 @@ def create_banking_charts(df):
 def show():
     """Show the persona library page"""
     
-    st.title("📚 Persona Library")
-    st.write("Browse, analyze, and manage your generated banking personas.")
+    # Load custom CSS
+    load_custom_css()
+    
+    create_header(
+        "Persona Library",
+        "Durchsuche, analysiere und verwalte deine generierten Banking-Personas",
+        "📚"
+    )
     
     # Load saved batches
     batches = load_saved_batches()
     
     if not batches:
-        st.info("No saved persona batches found. Generate some personas first using the Batch Generation page!")
+        create_info_box("""
+        <strong>📂 Keine gespeicherten Persona-Batches gefunden!</strong><br>
+        Generiere zuerst einige Personas mit der Batch Generation Seite.
+        """, "warning")
         return
     
     # Batch selection
-    st.write("### Saved Batches")
+    create_section_header("Gespeicherte Batches", "📦")
     
     # Create batch options for selectbox
     batch_options = []
@@ -173,9 +183,10 @@ def show():
         })
     
     selected_batch_idx = st.selectbox(
-        "Select a batch to explore:",
+        "🗂️ Batch auswählen:",
         range(len(batch_options)),
-        format_func=lambda x: batch_options[x]['label']
+        format_func=lambda x: batch_options[x]['label'],
+        help="Wähle einen Batch zum Erkunden aus"
     )
     
     if selected_batch_idx is not None:
@@ -183,29 +194,29 @@ def show():
         personas = selected_batch['personas']
         metadata = selected_batch['metadata']
         
-        # Batch info
+        # Batch info with modern design
         col_info1, col_info2, col_info3, col_info4 = st.columns(4)
         with col_info1:
-            st.metric("Total Personas", metadata['total_personas'])
+            create_metric_card("Anzahl Personas", metadata['total_personas'], "👥")
         with col_info2:
             generated_date = datetime.fromisoformat(metadata['generated_at']).strftime("%Y-%m-%d")
-            st.metric("Generated", generated_date)
+            create_metric_card("Erstellt am", generated_date, "📅")
         with col_info3:
-            st.metric("Batch ID", metadata['batch_id'][:8])
+            create_metric_card("Batch ID", metadata['batch_id'][:8], "🆔")
         with col_info4:
-            if st.button("🗑️ Delete Batch", help="Delete this batch file"):
+            if st.button("🗑️ Batch Löschen", help="Diesen Batch löschen", type="secondary"):
                 try:
                     Path(metadata['filepath']).unlink()
-                    st.success("Batch deleted successfully!")
+                    st.success("Batch erfolgreich gelöscht!")
                     st.rerun()
                 except Exception as e:
-                    st.error(f"Error deleting batch: {str(e)}")
+                    st.error(f"Fehler beim Löschen: {str(e)}")
         
         # Create tabs for different views
-        tab_browse, tab_analytics, tab_export = st.tabs(["🔍 Browse Personas", "📊 Analytics", "💾 Export"])
+        tab_browse, tab_analytics, tab_export = st.tabs(["🔍 Personas Durchsuchen", "📊 Analysen", "💾 Export"])
         
         with tab_browse:
-            st.write("### Individual Personas")
+            create_section_header("Einzelne Personas", "👤")
             
             # Convert to DataFrame for easier handling
             df = create_personas_dataframe(personas)

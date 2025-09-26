@@ -3,6 +3,7 @@ import pandas as pd
 from pathlib import Path
 from data import load_demographie_csv
 from llm import SwissAIClient
+from ui_components import load_custom_css, create_header, create_section_header, create_info_box
 import random
 import json
 
@@ -10,11 +11,18 @@ import json
 st.set_page_config(
     page_title="Banking Persona Generator",
     page_icon="🏦",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-st.title("🏦 Banking Persona Generator")
-st.write("Generate realistic banking personas based on demographic data from Switzerland.")
+# Load custom CSS
+load_custom_css()
+
+# Main header
+create_header(
+    "Banking Persona Generator", 
+    "Generiere realistische Banking-Personas basierend auf demographischen Daten aus der Schweiz"
+)
 
 # Initialize session state
 if 'persona_generated' not in st.session_state:
@@ -252,12 +260,12 @@ col1, col2 = st.columns([1, 3])
 
 with col1:
     # Debug mode toggle
-    debug_mode = st.checkbox("🐛 Debug Mode", help="Shows detailed LLM responses for troubleshooting")
+    debug_mode = st.checkbox("🐛 Debug Mode", help="Zeigt detaillierte LLM-Antworten für Debugging")
     
-    st.write("### CSV-Daten Filter")
+    create_section_header("CSV-Daten Filter", "🔍")
     
     # Demographics filters from CSV
-    st.write("**Demografische Filter:**")
+    st.markdown("**👥 Demografische Filter:**")
     
     alter_range = st.selectbox(
         "Altersgruppe",
@@ -327,12 +335,12 @@ with col1:
         'kinder': 1 if kinder_filter == "Mit Kindern" else (0 if kinder_filter == "Ohne Kinder" else None)
     }
     
-    st.write("---")
+    st.markdown("---")
     
-    st.write("### Banking Parameter")
+    create_section_header("Banking Parameter", "💰")
     
     # Additional parameters not in CSV data
-    st.write("**Banking-spezifische Parameter:**")
+    st.markdown("**🏦 Banking-spezifische Parameter:**")
     
     vermoegen = st.selectbox(
         "Freies Vermögen",
@@ -378,15 +386,23 @@ with col1:
         'finanz_erfahrung': finanz_erfahrung
     }
     
-    st.write("---")
+    st.markdown("---")
     
-    st.write("### Actions")
-    if st.button("🎯 Generate Persona", type="primary", use_container_width=True):
+    create_section_header("Aktionen", "⚡")
+    
+    if st.button("🎯 Persona Generieren", type="primary", use_container_width=True):
         generate_persona(additional_params, csv_filters, debug_mode)
+        
+    if st.session_state.persona_generated:
+        col_export1, col_export2 = st.columns(2)
+        with col_export1:
+            if st.button("💾 Exportieren", use_container_width=True):
+                # Export functionality can be added here
+                st.success("Persona exportiert!")
     
     if st.session_state.persona_generated:
-        st.write("### Source Data")
-        st.write("**Selected Person Data:**")
+        create_section_header("Quell-Daten", "📊")
+        st.markdown("**📋 Ausgewählte Person:**")
         
         # Display some key demographics in a nice format
         person_data = st.session_state.current_person_data
@@ -432,7 +448,7 @@ with col1:
 
 with col2:
     if st.session_state.persona_generated:
-        st.write("### Generated Banking Persona")
+        create_section_header("Generierte Banking-Persona", "🎭")
         
         # Try to parse JSON and display structured, fallback to raw text
         try:
@@ -506,21 +522,45 @@ with col2:
             except:
                 st.error("Could not parse persona as JSON for download.")
     else:
-        st.write("### Welcome!")
-        st.write("Configure filters and banking parameters on the left, then click **Generate Persona** to create realistic banking customers.")
-        st.write("Each persona combines real Swiss demographic data with AI-generated banking behavior patterns.")
+        create_section_header("Willkommen beim Persona Generator!", "👋")
         
-        # Show some info about what the app does
-        with st.expander("ℹ️ How it works"):
-            st.write("""
-            1. **Filter Selection**: Choose demographic criteria from real Swiss census data
-            2. **Banking Parameters**: Add banking-specific attributes not in demographic data  
-            3. **AI Generation**: Combined data is sent to Swiss AI platform with specialized prompts
-            4. **Persona Creation**: Generates detailed banking persona with behaviors, preferences, and life story
-            5. **Structured Output**: Results displayed as organized JSON with key banking insights
-            """)
+        create_info_box("""
+        <strong>🎯 Wie es funktioniert:</strong><br>
+        Konfiguriere Filter und Banking-Parameter auf der linken Seite, dann klicke auf <strong>Persona Generieren</strong>, 
+        um realistische Banking-Kunden zu erstellen. Jede Persona kombiniert echte Schweizer demographische Daten 
+        mit KI-generierten Banking-Verhaltensmustern.
+        """)
+        
+        col_info1, col_info2 = st.columns(2)
+        
+        with col_info1:
+            st.markdown("""
+            <div class="metric-container">
+                <h4>🔄 Prozess</h4>
+                <p>1. <strong>Filter wählen:</strong> Demografische Kriterien aus echten Schweizer Zensusdaten</p>
+                <p>2. <strong>Banking-Parameter:</strong> Banking-spezifische Attribute hinzufügen</p>
+                <p>3. <strong>KI-Generierung:</strong> Daten werden an Swiss AI Platform gesendet</p>
+                <p>4. <strong>Persona-Erstellung:</strong> Detaillierte Banking-Persona mit Verhalten und Vorlieben</p>
+                <p>5. <strong>Strukturierte Ausgabe:</strong> Ergebnisse als organisiertes JSON</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col_info2:
+            st.markdown("""
+            <div class="metric-container">
+                <h4>🔧 Verfügbare Filter</h4>
+                <p><strong>CSV-Daten Filter:</strong></p>
+                <p>• Altersgruppen, Geschlecht, Kanton, Sprachregion</p>
+                <p>• Einkommensstufen, Bildungsgrad, Erwerbsstatus</p>
+                <p>• Kinder im Haushalt</p>
+                <p><strong>Banking-Parameter:</strong></p>
+                <p>• Freies Vermögen, Verfügbares Einkommen</p>
+                <p>• Geplante Ausgaben, Wohnsituation</p>
+                <p>• Finanzprodukt-Erfahrung</p>
+            </div>
+            """, unsafe_allow_html=True)
             
-        with st.expander("🔧 Available Filters"):
+        with st.expander("� Beispiel-Persona anzeigen"):
             st.write("""
             **CSV Data Filters:**
             - Age groups, Gender, Canton, Language region

@@ -7,6 +7,7 @@ import glob
 from dotenv import load_dotenv
 import concurrent.futures
 import time
+from ui_components import load_custom_css, create_header, create_section_header, create_info_box, create_metric_card
 
 # Load environment variables
 load_dotenv()
@@ -228,27 +229,39 @@ def show_batch_summary(chat_history, selected_batch):
 
 def batch_chat_page():
     """Main batch chat page"""
-    st.title("👥 Batch Chat")
-    st.markdown("Chat mit mehreren Personas gleichzeitig - ideal für Produktideen und Marktforschung!")
+    # Load custom CSS
+    load_custom_css()
+    
+    create_header(
+        "Batch Chat", 
+        "Chat mit mehreren Personas gleichzeitig - ideal für Produktideen und Marktforschung!",
+        "👥"
+    )
     
     # Get API key from environment
     api_key = os.getenv("SWISS_AI_PLATFORM_API_KEY")
     
     if not api_key:
-        api_key = st.text_input("Swiss AI API Key", type="password", key="batch_chat_api_key")
+        create_info_box("""
+        <strong>🔑 API Key erforderlich</strong><br>
+        Bitte gib deinen Swiss AI Platform API Key ein, um zu starten.
+        """, "warning")
+        api_key = st.text_input("Swiss AI API Key", type="password", key="batch_chat_api_key", placeholder="Dein API Key hier eingeben...")
         if not api_key:
-            st.warning("API Key benötigt.")
             return
     
     # Load batches
     batches = load_persona_batches()
     
     if not batches:
-        st.warning("Keine Persona-Batches gefunden! Generiere zuerst Batches.")
+        create_info_box("""
+        <strong>⚠️ Keine Persona-Batches gefunden!</strong><br>
+        Generiere zuerst Batches mit der Batch Generation Seite.
+        """, "warning")
         return
     
     # Batch selection
-    st.subheader("📦 Batch wählen")
+    create_section_header("Batch wählen", "📦")
     
     batch_options = {batch['display_name']: batch for batch in batches}
     
@@ -264,9 +277,9 @@ def batch_chat_page():
         # Show batch info
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.metric("Personas", selected_batch['count'])
+            create_metric_card("Personas", selected_batch['count'], "👥")
         with col2:
-            st.metric("Max. gleichzeitig", min(10, selected_batch['count']))
+            create_metric_card("Max. gleichzeitig", min(10, selected_batch['count']), "⚡")
         with col3:
             metadata = selected_batch.get('metadata', {})
             generated_date = metadata.get('generated_at', 'Unknown')
