@@ -1,6 +1,15 @@
 import streamlit as st
 import json
+import plotly.express as px
 import pandas as pd
+import sys
+import os
+
+# Add the current directory to the Python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# Import the main app
+from persona_visualizer_app import PersonaVisualizerApp
 from typing import Dict, List, Any
 
 # Page configuration
