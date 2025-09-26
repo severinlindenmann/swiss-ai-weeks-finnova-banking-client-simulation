@@ -11,7 +11,7 @@ st.set_page_config(
 st.sidebar.title("🏦 Banking Persona Generator")
 page = st.sidebar.selectbox(
     "Choose a page",
-    ["Single Persona", "Batch Generation", "Persona Library"]
+    ["Single Persona", "Batch Generation", "Persona Library", "Persona Chat", "Batch Chat"]
 )
 
 if page == "Single Persona":
@@ -23,3 +23,9 @@ elif page == "Batch Generation":
 elif page == "Persona Library":
     import persona_library
     persona_library.show()
+elif page == "Persona Chat":
+    import persona_chat
+    persona_chat.persona_chat_page()
+elif page == "Batch Chat":
+    import batch_chat
+    batch_chat.batch_chat_page()
